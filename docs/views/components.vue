@@ -224,6 +224,10 @@ export default {
         ],
         other: [
           {
+            name: 'animate',
+            desc: '动画'
+          },
+          {
             name: 'affix',
             desc: '固钉'
           }
