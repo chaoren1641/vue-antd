@@ -1,68 +1,106 @@
 <template>
-<div
-  @blur="_onBlur"
-  @click="_onClick"
-  @focus="_onFocus"
-  @mousedown="_onMouseDown"
-  @mouseenter="_onMouseEnter"
-  @mouseleave="_onMouseLeave"
-  @touchstart="_onTouchStart">
-  <popup v-if="popupRendered"
-    :prefixCls="prefixCls"
+<span>
+  <popup
+    :style="popupStyle"
+    :prefix-cls="prefixCls"
     :visible="popupVisible"
-    :className="popupClassName"></popup>
-  <slot></slot>
-</div>
+    :class-name="popupClassName"
+    :action="action"
+    :wrap="_getTriggerTarget.bind($parent)"
+    :align="_popupAlign"
+    :animation="popupAnimation"
+    :on-animation-leave="onAnimateLeave"
+    :on-mouse-enter="_onMouseEnter"
+    :on-mouse-leave="_onMouseLeave"
+    :transition-name="popupTransitionName"
+    :get-class-name-from-align="_getPopupClassNameFromAlign">
+    <slot name="popup"></slot>
+  </popup>
+  <slot name="trigger"></slot>
+</span>
 </template>
 
 <script>
-import { defaultProps, contains } from '../../../utils'
+import { defaultProps, oneOfType, contains, slotMixin } from '../../../utils'
+import cx from 'classnames'
 import Popup from './Popup.vue'
+import { getAlignFromPlacement, getPopupClassNameFromAlign } from './utils'
 
 export default {
   props: defaultProps({
     prefixCls: 'ant-trigger-popup',
-    // getPopupClassNameFromAlign: returnEmptyString,
-    onPopupVisibleChange: () => {},
-    afterPopupVisibleChange: () => {},
+    popup: String,
+    popupStyle: {
+      default: function (){ return {} }
+    },
+    popupAlign: {
+      default: function (){ return {} }
+    },
+    popupAnimation: '',
+    popupPlacement: String,
     popupClassName: '',
+    popupVisible: false,
+    popupTransitionName: '',
     mouseEnterDelay: 0,
     mouseLeaveDelay: 0.1,
-    popupStyle: {},
     destroyPopupOnHide: false,
-    popupAlign: {},
-    defaultPopupVisible: false,
-    action: []
+    builtinPlacements: Object,
+    action: oneOfType([Array, String]),
+    getPopupClassNameFromAlign: () => '',
+    onPopupVisibleChange: () => {},
+    afterPopupVisibleChange: () => {}
   }),
+
+  mixins: [slotMixin],
 
   components: { Popup },
 
   computed: {
-    isClickAction () {
-      if (this.action.indexOf('click') === -1) {
-        return false
+    _popupAlign () {
+      const {popupPlacement, popupAlign, builtinPlacements} = this
+      if (popupPlacement && builtinPlacements) {
+        return getAlignFromPlacement(builtinPlacements, popupPlacement, popupAlign)
       }
-      return true
+      return popupAlign
+    }
+  },
+
+  methods: {
+    isClickAction () {
+      if (this.action.indexOf('click') !== -1) {
+        return true
+      }
+      return false
     },
 
     isHoverAction () {
       if (this.action.indexOf('hover') !== -1) {
-        return false
+        return true
       }
-      return true
+      return false
     },
 
     isFocusAction () {
       if (this.action.indexOf('focus') !== -1) {
-        return false
+        return true
       }
-      return true
-    }
-  }
+      return false
+    },
 
-  mehtods: {
+    _getPopupClassNameFromAlign (align) {
+      const className = []
+      const {popupPlacement, builtinPlacements, prefixCls} = this
+      if (popupPlacement && builtinPlacements) {
+        className.push(getPopupClassNameFromAlign(builtinPlacements, prefixCls, align))
+      }
+      if (this.getPopupClassNameFromAlign) {
+        className.push(this.getPopupClassNameFromAlign(align))
+      }
+      return className.join(' ')
+    },
+
     _onClick (e) {
-      if (this.isClickAction) {
+      if (this.isClickAction()) {
         if (this.focusTime) {
           let preTime
           if (this.preClickTime && this.preTouchTime) {
@@ -84,39 +122,39 @@ export default {
       }
     },
 
-    _oMouseDown (e) {
-      if (this.isClickAction) {
+    _onMouseDown (e) {
+      if (this.isClickAction()) {
         this.preClickTime = Date.now()
       }
     },
 
     _onTouchStart (e) {
-      if (this.isClickAction) {
+      if (this.isClickAction()) {
         this.preTouchTime = Date.now()
       }
     },
 
     _onMouseEnter (e) {
-      if (this.isHoverAction) {
+      if (this.isHoverAction()) {
         this._delaySetPopupVisible(true, this.mouseEnterDelay)
       }
     },
 
     _onMouseLeave (e) {
-      if (this.isHoverAction) {
+      if (this.isHoverAction()) {
         this._delaySetPopupVisible(false, this.mouseLeaveDelay)
       }
     },
 
     _onFocus (e) {
-      if (this.isFocusAction) {
+      if (this.isFocusAction()) {
         this.focusTime = Date.now()
         this._setPopupVisible(true)
       }
     },
 
     _onBlur (e) {
-      if (this.isFocusAction) {
+      if (this.isFocusAction()) {
         this._setPopupVisible(false)
       }
     },
@@ -163,11 +201,11 @@ export default {
       }
       if (delay) {
         this.delayTimer = setTimeout(() => {
-          this.setPopupVisible(visible)
+          this._setPopupVisible(visible)
           this.delayTimer = null
         }, delay)
       } else {
-        this.setPopupVisible(visible)
+        this._setPopupVisible(visible)
       }
     }
   }

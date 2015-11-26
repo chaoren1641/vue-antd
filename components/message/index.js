@@ -1,6 +1,7 @@
-import Notification from './base/notification'
+import Notification from '../base/notification'
 
-let defaultDuration = 1.5
+const defaultDuration = 1.5
+
 let top
 let messageInstance
 let key = 1
@@ -31,36 +32,38 @@ function notice (content, duration = defaultDuration, type, onClose) {
     key: key,
     duration: duration,
     style: {},
-    content: '<div class="ant-message-custom-content">' +
-      '<i class=`anticon ${iconClass}`></i>' +
-      '<span>`${content}`</span>' +
-    '</div>',
+    content: `
+      <div class="ant-message-custom-content">
+        <i class="anticon ${iconClass}"></i>
+        <span>${content}</span>
+      </div>
+    `,
     onClose: onClose
   })
 
-  return (function() {
+  return (function () {
     let target = key++
 
-    return function() {
+    return function () {
       instance.removeNotice(target)
     }
   })()
 }
 
 export default {
-  info(content, duration, onClose) {
+  info (content, duration, onClose) {
     return notice(content, duration, 'info', onClose)
   },
-  success(content, duration, onClose) {
+  success (content, duration, onClose) {
     return notice(content, duration, 'success', onClose)
   },
-  error(content, duration, onClose) {
+  error (content, duration, onClose) {
     return notice(content, duration, 'error', onClose)
   },
-  loading(content, duration, onClose) {
+  loading (content, duration, onClose) {
     return notice(content, duration, 'loading', onClose)
   },
-  config(options) {
+  config (options) {
     if (options.top) {
       top = options.top
     }

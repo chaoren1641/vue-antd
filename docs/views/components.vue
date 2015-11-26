@@ -58,12 +58,19 @@
               <span class="chinese">{{component.desc}}</span>
             </a>
           </li>
+          <li class="type-divider">基础</li>
+          <li v-for="component in componentsMenu.basic">
+            <a v-link="{path: '/components/' + component.name}">
+              {{component.name | Upper}}
+              <span class="chinese">{{component.desc}}</span>
+            </a>
+          </li>
         </ul>
       </li>
     </ul>
   </aside>
   <section class="main-container">
-    <router-view class="view xRightMatrix"></router-view>
+    <router-view class="view"></router-view>
   </section>
 </div>
 </template>
@@ -151,26 +158,26 @@ export default {
           //   name: 'dropdown',
           //   desc: '下拉菜单'
           // },
-          // {
-          //   name: 'message',
-          //   desc: '全局提示'
-          // },
-          // {
-          //   name: 'modal',
-          //   desc: '对话框'
-          // },
-          // {
-          //   name: 'notification',
-          //   desc: '通知提醒框'
-          // },
-          // {
-          //   name: 'popconfirm',
-          //   desc: '气泡确认框'
-          // },
-          // {
-          //   name: 'popover',
-          //   desc: '气泡卡片'
-          // },
+          {
+            name: 'message',
+            desc: '全局提示'
+          },
+          {
+            name: 'modal',
+            desc: '对话框'
+          },
+          {
+            name: 'notification',
+            desc: '通知提醒框'
+          },
+          {
+            name: 'popconfirm',
+            desc: '气泡确认框'
+          },
+          {
+            name: 'popover',
+            desc: '气泡卡片'
+          },
           {
             name: 'progress',
             desc: '进度条'
@@ -186,15 +193,15 @@ export default {
           {
             name: 'spin',
             desc: '加载动画'
-          }
-          // {
-          //   name: 'timeline',
-          //   desc: '时间轴'
-          // },
-          // {
-          //   name: 'tooltip',
-          //   desc: '文字提示'
-          // },
+          },
+          {
+            name: 'timeline',
+            desc: '时间轴'
+          },
+          {
+            name: 'tooltip',
+            desc: '文字提示'
+          },
           // {
           //   name: 'tree',
           //   desc: '树形控件'
@@ -231,6 +238,28 @@ export default {
             name: 'queue-anim',
             desc: '进场动画'
           }
+        ],
+        basic: [
+          {
+            name: '_animate',
+            desc: '动画'
+          },
+          {
+            name: '_align',
+            desc: '对齐'
+          },
+          {
+            name: '_trigger',
+            desc: '触发'
+          },
+          {
+            name: '_notification',
+            desc: '通知'
+          },
+          {
+            name: '_tooltip',
+            desc: '提示'
+          }
         ]
       }
     }
@@ -253,7 +282,6 @@ export default {
 .main-container {
   margin-left: 260px;
   padding: 30px 40px 120px;
-  -webkit-animation: xRightMatrix .5s ease-out;
   animation: xRightMatrix .5s ease-out;
   background: #fff;
   min-height: 500px;
@@ -426,7 +454,7 @@ export default {
 .markdown > ul li {
   list-style: circle;
   margin-left: 20px;
-  padding-left: 8px;
+  /*padding-left: 8px;*/
 }
 
 .markdown > ol li {
@@ -652,6 +680,11 @@ export default {
   display: none;
   padding: 5px;
   border-top: 1px dashed #e9e9e9;
+}
+
+.code-box-code pre {
+  max-height: 300px;
+  overflow-y: scroll;
 }
 
 .xRightMatrix {

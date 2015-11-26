@@ -1,8 +1,6 @@
 <template>
-<div :class="classnames" :style="style">
-  <div :class="componentClass + '-content'">
-    <slot></slot>
-  </div>
+<div :class="wrapClasses" :style="style">
+  <div :class="componentClass + '-content'" v-el:content></div>
   <span v-if="closable">
     <a
       tabIndex="0"
@@ -16,43 +14,52 @@
 
 <script>
 import Animate from '../animate'
-import {createChainedFunction, classSet} from 'rc-util'
-import { defaultProps } from '../../../utils'
+import cx from 'classnames'
+import { defaultProps, oneOfType } from '../../../utils'
 
-const Notice = {
+export default {
   props: defaultProps({
-    prefixCls: {
-      type: String,
-      required: true
-    },
-    duration: 1.5,
+    prefixCls: '',
+    duration: oneOfType([Number, 'Null'], 1.5),
+    content: '',
     style: {
       type: Object,
-      default: {
-        right: '50%'
+      default: function() {
+        return {
+          right: '50%'
+        }
       }
     },
     closable: Boolean,
     className: String,
+    show: Boolean,
     onEnd: () => {},
     onClose: () => {}
   }),
 
-  data () {
-    return {
-      componentClass: `${this.prefixCls}-notice`
+  watch: {
+    content () {
+      this._renderContent()
     }
   },
 
   computed: {
-    classnames () {
-      return classSet({
-        [`${this.componentClass}`]: 1,
-        [`${this.componentClass}-closable`]: this.closable,
-        [this.className]: !!this.className
+    componentClass () {
+      return `${this.prefixCls}-notice`
+    },
+
+    wrapClasses () {
+      return cx({
+        [this.componentClass]: 1,
+        [this.className]: !!this.className,
+        [`${this.componentClass}-closable`]: this.closable
       })
     }
-  }
+  },
+
+  ready () {
+    this._renderContent()
+  },
 
   compiled () {
     this._clearCloseTimer()
@@ -64,9 +71,17 @@ const Notice = {
     }
   },
 
+  beforeDestory () {
+    this._clearCloseTimer()
+  },
+
   methods: {
-    beforeDestory () {
-      this._clearCloseTimer()
+    _renderContent () {
+      const node = this.$els.content
+      const span = document.createElement('span')
+      span.innerHTML = this.content
+      this.$parent.$parent.$parent.$compile(span)
+      node.appendChild(span)
     },
 
     _clearCloseTimer () {
@@ -79,6 +94,7 @@ const Notice = {
     _close () {
       this._clearCloseTimer()
       this.onClose()
+      this.show = false
     }
   }
 }

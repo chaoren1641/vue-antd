@@ -1,7 +1,7 @@
 import velocity from 'velocity-animate'
-import isPlainObject from 'lodash.isplainobject'
 import _KeyCode from './KeyCode'
 import _guid from './guid'
+import _slotMixin from './slotMixin'
 
 const toString = Object.prototype.toString
 
@@ -31,6 +31,7 @@ function animate (node, show, transitionName, done) {
   }
 }
 
+export const slotMixin = _slotMixin
 export const guid = _guid
 export const KeyCode = _KeyCode
 export const openAnimation = {
@@ -53,6 +54,7 @@ export function defaultProps (props) {
     if (props.hasOwnProperty(i)) {
       let defaultValue = props[i]
 
+      // 支持String， Number等类型
       if (defaultValue.name && window[defaultValue.name] === defaultValue) {
         props[i] = {
           type: defaultValue,
@@ -62,9 +64,29 @@ export function defaultProps (props) {
         continue
       }
 
-      if (isPlainObject(defaultValue)) continue
-
       let type = toString.call(defaultValue).replace('[object ', '').replace(']', '')
+
+      // 如果传进来的是vue的原生props对象的话
+      if (type === 'Object') {
+        if (defaultValue.type != null ||
+            defaultValue.default != null ||
+            defaultValue.validator != null ||
+            defaultValue.twoWay != null ||
+            defaultValue.required != null) {
+          continue
+        }
+      }
+
+      // 支持 Object和Array的简洁声明方式
+      // Todo: 目前看来这样并没有什么卵用
+      if (type === 'Array' || type === 'Object') {
+        props[i] = {
+          type: window[type],
+          default: function () {
+            return defaultValue
+          }
+        }
+      }
 
       props[i] = {
         type: window[type],
@@ -82,7 +104,13 @@ export function oneOfType (validList, defaultValue) {
   validaObj.default = defaultValue
   validaObj.validator = function (value) {
     for (let j = 0; j < validList.length; j++) {
-      const validName = validList[j].name
+      const currentValid = validList[j]
+      let validName
+      if (typeof currentValid === 'string') {
+        validName = currentValid
+      } else {
+        validName = currentValid.name
+      }
       if (toString.call(value).indexOf(validName) > -1) {
         return true
       }
@@ -109,6 +137,12 @@ export function oneOf (validList, defaultValue) {
   return validaObj
 }
 
+export const any = {
+  validator: function (value) {
+    return true
+  }
+}
+
 export function getPlainObject (vueObject) {
   return JSON.parse(JSON.stringify(vueObject))
 }
@@ -121,4 +155,8 @@ export function contains (root, node) {
     node = node.parentNode
   }
   return false
+}
+
+export function camelcaseToHyphen (str) {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
 }

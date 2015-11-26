@@ -1,8 +1,12 @@
 .zoom-motion(@className, @keyframeName) {
   .make-motion(@className, @keyframeName);
   .@{className}-enter, .@{className}-appear {
-    transform: scale(0); // need this by yiminghe
+    opacity: 0;
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    // transform: scale(0); // need this by yiminghe
     animation-timing-function: @ease-out-circ;
+    animation-play-state: paused;
   }
   .@{className}-leave {
     animation-timing-function: @ease-in-out-circ;
@@ -16,18 +20,12 @@
 .zoom-motion(zoom-left, antZoomLeft);
 .zoom-motion(zoom-right, antZoomRight);
 
-
-.zoom-tag-leave{
-  animation: antZoomOut .3s @ease-in-out-circ;
-}
-
-
 @keyframes antZoomIn {
   0% {
-    opacity: 0;
     transform: scale(0);
   }
   100% {
+    opacity: 1;
     transform: scale(1);
   }
 }
@@ -41,12 +39,13 @@
     transform: scale(0);
   }
 }
+
 @keyframes antZoomBigIn {
   0% {
-    opacity: 0;
     transform: scale(.8);
   }
   100% {
+    opacity: 1;
     transform: scale(1);
   }
 }
@@ -63,11 +62,11 @@
 
 @keyframes antZoomUpIn {
   0% {
-    opacity: 0;
     transform-origin: 50% 0%;
     transform: scale(.8);
   }
   100% {
+    opacity: 1;
     transform-origin: 50% 0%;
     transform: scale(1);
   }
@@ -87,11 +86,11 @@
 
 @keyframes antZoomLeftIn {
   0% {
-    opacity: 0;
     transform-origin: 0% 50%;
     transform: scale(.8);
   }
   100% {
+    opacity: 1;
     transform-origin: 0% 50%;
     transform: scale(1);
   }
@@ -111,11 +110,11 @@
 
 @keyframes antZoomRightIn {
   0% {
-    opacity: 0;
     transform-origin: 100% 50%;
     transform: scale(.8);
   }
   100% {
+    opacity: 1;
     transform-origin: 100% 50%;
     transform: scale(1);
   }
@@ -135,24 +134,24 @@
 
 @keyframes antZoomDownIn {
   0% {
-    opacity: 0;
-    transform-origin: 50% 100%;
+    transform-origin: 100% 100%;
     transform: scale(.8);
   }
   100% {
-    transform-origin: 50% 100%;
+    opacity: 1;
+    transform-origin: 100% 100%;
     transform: scale(1);
   }
 }
 
 @keyframes antZoomDownOut {
   0% {
-    transform-origin: 50% 100%;
+    transform-origin: 100% 100%;
     transform: scale(1);
   }
   100% {
     opacity: 0;
-    transform-origin: 50% 100%;
+    transform-origin: 100% 100%;
     transform: scale(.8);
   }
 }

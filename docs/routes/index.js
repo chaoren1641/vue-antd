@@ -52,6 +52,14 @@ export function configRouter (router) {
           component: require('../components/layout.vue')
         },
 
+        'message': {
+          component: require('../components/message.vue')
+        },
+
+        'notification': {
+          component: require('../components/notification.vue')
+        },
+
         'progress': {
           component: require('../components/progress.vue')
         },
@@ -60,13 +68,21 @@ export function configRouter (router) {
           component: require('../components/queue-anim.vue')
         },
 
+        'popconfirm': {
+          component: require('../components/popconfirm.vue')
+        },
+
+        'popover': {
+          component: require('../components/popover.vue')
+        },
+
         'upload': {
           component: require('../components/upload.vue')
         },
 
-        // 'modal': {
-        //   component: require('../components/modal.vue')
-        // },
+        'modal': {
+          component: require('../components/modal.vue')
+        },
 
         'radio': {
           component: require('../components/radio.vue')
@@ -94,6 +110,34 @@ export function configRouter (router) {
 
         'tag': {
           component: require('../components/tag.vue')
+        },
+
+        'tooltip': {
+          component: require('../components/tooltip.vue')
+        },
+
+        'timeline': {
+          component: require('../components/timeline.vue')
+        },
+
+        '_trigger': {
+          component: require('../components/_trigger.vue')
+        },
+
+        '_align': {
+          component: require('../components/_align.vue')
+        },
+
+        '_animate': {
+          component: require('../components/_animate.vue')
+        },
+
+        '_notification': {
+          component: require('../components/_notification.vue')
+        },
+
+        '_tooltip': {
+          component: require('../components/_tooltip.vue')
         }
       }
     },
