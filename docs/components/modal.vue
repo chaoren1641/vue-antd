@@ -18,13 +18,33 @@
     <v-button type="primary" @click="_showModal">显示对话框</v-button>
     <v-modal title="第一个 Modal"
       :visible="visible"
-      :confirm-loading="confirmLoading"
       :on-ok="_handleOk"
       :on-cancel="_handleCancel">
       <p>对话框的内容</p>
       <p>对话框的内容</p>
       <p>对话框的内容</p>
     </v-modal>
+  </example>
+  <example title="异步关闭">
+    <v-button type="primary" @click="_showModal2">显示对话框</v-button>
+    <v-modal title="对话框标题"
+      :visible="visible2"
+      :confirm-loading="confirmLoading"
+      :on-ok="_handleOk2"
+      :on-cancel="_handleCancel2">
+      <p>{{modalText}}</p>
+    </v-modal>
+  </example>
+  <example title="确认对话框">
+    <v-button @click="_showConfirm">确认对话框</v-button>
+  </example>
+  <example title="确认对话框">
+    <v-button @click="_showConfirm2">确认对话框</v-button>
+  </example>
+  <example title="确认对话框">
+    <v-button @click="info">信息提示</v-button>
+    <v-button @click="success">成功提示</v-button>
+    <v-button @click="error">失败提示</v-button>
   </example>
 </demo>
 
@@ -67,11 +87,18 @@ import vButton from '../../components/button'
 import vModal from '../../components/modal'
 import message from '../../components/message'
 
+const confirm = vModal.confirm
+const info = vModal.info
+const success = vModal.success
+const error = vModal.error
+
 export default {
   data () {
     return {
-      confirmLoading: true,
-      visible: false
+      modalText: '对话框的内容',
+      confirmLoading: false,
+      visible: false,
+      visible2: false
     }
   },
 
@@ -90,7 +117,72 @@ export default {
 
     _handleCancel () {
       message.info('点击了取消')
-      this.visible = true
+      this.visible = false
+    },
+
+    _showModal2 () {
+      this.visible2 = true
+    },
+
+    _handleOk2 () {
+      message.success('点击了确定')
+      this.modalText = '对话框将在两秒后关闭'
+      this.confirmLoading = true
+      setTimeout(() => {
+        this.visible2 = false
+        this.confirmLoading = false
+      }, 2000)
+    },
+
+    _handleCancel2 () {
+      message.info('点击了取消')
+      this.visible2 = false
+    },
+
+    _showConfirm () {
+      confirm({
+        title: '您是否确认要删除这项内容',
+        content: '一些解释',
+        onOk: function() {
+          console.log('确定')
+        },
+        onCancel: function() {}
+      })
+    },
+
+    _showConfirm2 () {
+      confirm({
+        title: '您是否确认要删除这项内容',
+        content: '点确认 1 秒后关闭',
+        onOk: function() {
+          return new Promise(function(resolve) {
+            setTimeout(resolve, 1000)
+          })
+        },
+        onCancel: function() {}
+      })
+    },
+
+    info() {
+      info({
+        title: '这是一条通知信息',
+        content: '一些附加信息一些附加信息一些附加信息',
+        onOk: function() {}
+      })
+    },
+
+    success() {
+      success({
+        title: '这是一条通知信息',
+        content: '一些附加信息一些附加信息一些附加信息'
+      })
+    },
+
+    error() {
+      error({
+        title: '这是一条通知信息',
+        content: '一些附加信息一些附加信息一些附加信息'
+      })
     }
   }
 }
