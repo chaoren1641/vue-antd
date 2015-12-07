@@ -22,6 +22,22 @@
       <div><h3>4</h3></div>
     </v-carousel>
   </example>
+  <example title="垂直">
+    <v-carousel :vertical="true">
+      <div><h3>1</h3></div>
+      <div><h3>2</h3></div>
+      <div><h3>3</h3></div>
+      <div><h3>4</h3></div>
+    </v-carousel>
+  </example>
+  <example title="渐显">
+    <v-carousel effect="fade">
+      <div><h3>1</h3></div>
+      <div><h3>2</h3></div>
+      <div><h3>3</h3></div>
+      <div><h3>4</h3></div>
+    </v-carousel>
+  </example>
 </demo>
 
 ## API
@@ -34,20 +50,6 @@
 | autoplay | 是否自动切换 | Boolean   | false |
 | easing | 动画效果 | String   | linear |
 | onChange         | 切换面板的回调                               | Function | 无
-
-<style scoped>
-.ant-carousel .slick-slide {
-  text-align: center;
-  height: 100px;
-  line-height: 100px;
-  background: #71B5DE;
-  color: #fff;
-  overflow: hidden;
-}
-#components-carousel-demo-vertical .ant-carousel {
-  margin-right: 35px;
-}
-</style>
 </template>
 
 <script>
@@ -67,3 +69,17 @@ export default {
 }
 
 </script>
+<style>
+.ant-carousel .slick-slide h3{
+  text-align: center;
+  height: 100px;
+  line-height: 100px;
+  background: #71B5DE;
+  color: #fff;
+  overflow: hidden;
+  margin: 0;
+}
+#components-carousel-demo-vertical .ant-carousel {
+  margin-right: 35px;
+}
+</style>

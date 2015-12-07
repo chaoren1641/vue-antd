@@ -5,18 +5,11 @@
 </template>
 
 <script>
-import { addStyle, addClass, insertBefore, insertAfter } from '../../../utils'
-import cx from 'classnames'
+import { cx, addStyle, addClass, removeClass, insertBefore, insertAfter, strToObj } from '../../../utils'
 
 const getSlideClasses = function (spec) {
   let slickActive, slickCenter, slickCloned
-  let centerOffset, index
-
-  if (spec.rtl) {
-    index = spec.slideCount - 1 - spec.index
-  } else {
-    index = spec.index
-  }
+  let centerOffset, index = spec.index
 
   slickCloned = (index < 0) || (index >= spec.slideCount)
   if (spec.centerMode) {
@@ -41,12 +34,12 @@ const getSlideStyle = function (spec) {
   let style = {}
 
   if (spec.variableWidth === undefined || spec.variableWidth === false) {
-    style.width = spec.slideWidth
+    style.width = spec.slideWidth + 'px'
   }
 
   if (spec.fade) {
     style.position = 'relative'
-    style.left = -spec.index * spec.slideWidth
+    style.left = -spec.index * spec.slideWidth + 'px'
     style.opacity = (spec.currentSlide === spec.index) ? 1 : 0
     style.transition = 'opacity ' + spec.speed + 'ms ' + spec.cssEase
     style.WebkitTransition = 'opacity ' + spec.speed + 'ms ' + spec.cssEase
@@ -56,29 +49,56 @@ const getSlideStyle = function (spec) {
 }
 
 export default {
+  props: [
+    'fade', 'cssEase', 'speed', 'infinite', 'centerMode',
+    'currentSlide', 'lazyLoad', 'lazyLoadedList',
+    'slideWidth', 'slidesToShow', 'slideCount', 'trackStyle', 'variableWidth'
+  ],
+
+  data () {
+    return {
+      hasPreInit: false,
+      hasPostInit: false
+    }
+  },
+
   ready () {
-    this.children = this.$el.children
+    this.children = []
+
+    for (let i = 0; i < this.$el.children.length; i++) {
+      this.children.push(this.$el.children[i])
+    }
+
     this.preClone = this.children[0].cloneNode(true)
     this.postClone = this.children[this.children.length - 1].cloneNode(true)
+    this.slideCount = this.children.length
 
     this._mapPropsToChild()
+
+    Object.keys(this.$data).map(item => {
+      this.$watch(item, this._mapPropsToChild)
+    })
   },
 
   methods: {
     _mapPropsToChild () {
+      this.children.forEach((el, index) => {
+        let child
+        let key
 
-      [...this.children].forEach((el, index) => {
         if (!this.lazyLoad | (this.lazyLoad && this.lazyLoadedList.indexOf(index) >= 0)) {
-          child = elem;
+          child = el
         } else {
           child = document.createElement('div')
         }
-        const childStyle = getSlideStyle(Object.assign({}, this, {index: index}))
-        const slickClasses = getSlideClasses(Object.assign({index: index}, this))
+        const childStyle = getSlideStyle(Object.assign({}, this.$data, {index: index}))
+        const slickClasses = getSlideClasses(Object.assign({index: index}, this.$data))
         let cssClasses
 
-        if (child.classList) {
-          cssClasses = cx(slickClasses, child.classList)
+        removeClass(child, 'slick-active')
+
+        if (child.className) {
+          cssClasses = cx(Object.assign(strToObj(slickClasses), strToObj(child.className)))
         } else {
           cssClasses = slickClasses
         }
@@ -87,29 +107,41 @@ export default {
         child.setAttribute('data-index', index)
         addClass(child, cssClasses)
         addStyle(child, childStyle)
-
-        if (this.infinite && this.fade === false) {
-          const infiniteCount = this.variableWidth ? this.slidesToShow + 1 : this.slidesToShow
-          if (index >= (count - infiniteCount)) {
-            key = -(count - index)
-            this.preClone.setAttribute('key', key)
-            this.preClone.setAttribute('data-index', key)
-            addClass(this.preClone, getSlideClasses(Object.assign({index: key}, this)))
-            addStyle(this.preClone, childStyle)
-            insertBefore(this.preClone, child)
-          }
-          if (index < infiniteCount) {
-            key = count + index
-            this.postClone.setAttribute('key', key)
-            this.postClone.setAttribute('data-index', key)
-            addClass(this.postClone, getSlideClasses(Object.assign({index: key}, this)))
-            addStyle(this.postClone, childStyle)
-            insertAfter(this.postClone, child)
-          }
-        }
       })
+
+      if (this.infinite && this.fade === false) {
+        const infiniteCount = this.variableWidth ? this.slidesToShow + 1 : this.slidesToShow
+        ;(function() {
+          removeClass(this.preClone, 'slick-active')
+          const child = this.children[this.slideCount - 1]
+          const key = this.slideCount
+          this.preClone.setAttribute('key', key)
+          this.preClone.setAttribute('data-index', key)
+
+          const childStyle = getSlideStyle(Object.assign({}, this.$data, {index: this.slideCount - 1}))
+          addClass(this.preClone, getSlideClasses(Object.assign({index: key}, this)))
+          addStyle(this.preClone, childStyle)
+          if (!this.hasPreInit) {
+            insertAfter(this.preClone, child)
+            this.hasPreInit = true
+          }
+        }.bind(this))()
+        ;(function() {
+          removeClass(this.postClone, 'slick-active')
+          const child = this.children[0]
+          const key = -1
+          this.postClone.setAttribute('key', key)
+          this.postClone.setAttribute('data-index', key)
+          const childStyle = getSlideStyle(Object.assign({}, this.$data, {index: 0}))
+          addClass(this.postClone, getSlideClasses(Object.assign({index: key}, this)))
+          addStyle(this.postClone, childStyle)
+          if (!this.hasPostInit) {
+            insertBefore(this.postClone, child)
+            this.hasPostInit = true
+          }
+        }.bind(this))()
+      }
     }
   }
 }
-
 </script>

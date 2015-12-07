@@ -1,23 +1,40 @@
 import { isIE9 } from './env'
 import { camelize } from './lang'
 
-const setClass = isIE9
-  ? function (el, cls) {
-    /* istanbul ignore next */
+function setClass (el, cls) {
+  /* istanbul ignore if */
+  if (isIE9 && el.hasOwnProperty('className')) {
     el.className = cls
-  }
-  : function (el, cls) {
+  } else {
     el.setAttribute('class', cls)
   }
+}
 
 export function addClass (el, cls) {
   if (el.classList) {
-    el.classList.add(cls)
+    const clsArr = cls.split(' ')
+    clsArr.map(cl => el.classList.add(cl))
   } else {
     var cur = ' ' + (el.getAttribute('class') || '') + ' '
     if (cur.indexOf(' ' + cls + ' ') < 0) {
       setClass(el, (cur + cls).trim())
     }
+  }
+}
+
+export function removeClass (el, cls) {
+  if (el.classList) {
+    el.classList.remove(cls)
+  } else {
+    var cur = ' ' + (el.getAttribute('class') || '') + ' '
+    var tar = ' ' + cls + ' '
+    while (cur.indexOf(tar) >= 0) {
+      cur = cur.replace(tar, ' ')
+    }
+    setClass(el, cur.trim())
+  }
+  if (!el.className) {
+    el.removeAttribute('class')
   }
 }
 
